@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search> 
+  
+  
+    
+    <entry>
+      <title>使用Linux搭建http服务器，实现你的博主梦</title>
+      <link href="/2022/03/13/10.http%E6%9C%8D%E5%8A%A1%E5%99%A8/"/>
+      <url>/2022/03/13/10.http%E6%9C%8D%E5%8A%A1%E5%99%A8/</url>
+      
+        <content type="html"><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>我这里是使用的是CentOS 7 ,由于linux发行版本问题，可能有出入，请多包涵</p><h1 id="什么是http服务器"><a href="#什么是http服务器" class="headerlink" title="什么是http服务器"></a>什么是http服务器</h1><p>HTTP服务器，也称为Web服务器，是一种计算机程序，它驻留在因特网上，主要功能是接收并处理来自Web浏览器等客户端的请求，并返回相应的响应。<br>此外，HTTP服务器还可以用于存储和提供网站文件，以便全球用户可以浏览；<br>同时，也可以存储和提供数据文件，供全球用户下载。</p><h1 id="如何搭建http服务器"><a href="#如何搭建http服务器" class="headerlink" title="如何搭建http服务器"></a>如何搭建http服务器</h1><h2 id="前期准备"><a href="#前期准备" class="headerlink" title="前期准备"></a>前期准备</h2><h3 id="确认centOS版本"><a href="#确认centOS版本" class="headerlink" title="确认centOS版本"></a>确认centOS版本</h3><p>  登录到 CentOS 7 系统，打开终端，输入下面的命令，看到 “CentOS Linux release 7.x” 即表示版本正确。</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat /etc/redhat-release</span><br></pre></td></tr></table></figure><h3 id="更新系统组件"><a href="#更新系统组件" class="headerlink" title="更新系统组件"></a>更新系统组件</h3><p>在终端执行下面的命令，更新系统软件包，避免后续安装出现软件冲突问题。</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo yum update -y &amp;&amp; sudo yum upgrade -y</span><br></pre></td></tr></table></figure><h2 id="Apache-HTTP-服务"><a href="#Apache-HTTP-服务" class="headerlink" title="Apache HTTP 服务"></a>Apache HTTP 服务</h2><h3 id="什么是Apache"><a href="#什么是Apache" class="headerlink" title="什么是Apache"></a>什么是Apache</h3><p>常简称为 Apache，是 Apache 软件基金会开发和维护的一款开源的 HTTP 服务器软件。作为互联网基础设施中关键的一部分，它能处理客户端（如网页浏览器）发送的 HTTP 请求，并将对应的网页或数据传回客户端。<br>比如当在浏览器中输入网址，背后就可能是 Apache 服务器在传送所请求的网页。</p><h3 id="安装Apache服务"><a href="#安装Apache服务" class="headerlink" title="安装Apache服务"></a>安装Apache服务</h3><p>在终端输入下面命令，yum 是 CentOS 的软件包管理器，它会自动解决依赖关系并完成安装。</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo yum install httpd -y</span><br></pre></td></tr></table></figure><h3 id="配置-Apache-服务"><a href="#配置-Apache-服务" class="headerlink" title="配置 Apache 服务"></a>配置 Apache 服务</h3><p>Apache 的主配置文件路径为&#x2F;etc&#x2F;httpd&#x2F;conf&#x2F;httpd.conf，可以使用 vim 编辑器进行修改</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo vim /etc/httpd/conf/httpd.conf</span><br></pre></td></tr></table></figure><p>常见的配置项说明：<br>Listen：指定服务器监听的端口，默认为Listen 80 。<br>ServerName：设置服务器的域名，如果没有域名，可以写服务器的 IP 地址，如ServerName your_domain:80（将your_domain替换为实际 IP 或域名）。<br>DirectoryIndex：定义默认首页文件，默认是DirectoryIndex index.html 。<br>修改完成后，按ESC键，然后输入:wq保存并退出 vim 编辑器。</p><h3 id="启动-Apache-服务"><a href="#启动-Apache-服务" class="headerlink" title="启动 Apache 服务"></a>启动 Apache 服务</h3><p>启动服务：在终端执行命令<code>sudo systemctl start httpd </code> ，启动 Apache 服务。<br>设置开机自启：执行命令<code>sudo systemctl enable httpd</code> ，这样服务器重启后，Apache 服务会自动启动。<br>检查运行状态：使用命令&#96;&#96;systemctl status httpd&#96;&#96;&#96; ，如果看到 “active (running)” 标识，则表示 httpd 运行成功。</p><h2 id="配置防火墙"><a href="#配置防火墙" class="headerlink" title="配置防火墙"></a>配置防火墙</h2><p>CentOS 7 默认使用firewalld作为防火墙，需要放行 HTTP 和 HTTPS 服务：<br>1、添加服务规则：执行以下命令：</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo firewall-cmd --permanent --add-service=http</span><br><span class="line">sudo firewall-cmd --permanent --add-service=https</span><br></pre></td></tr></table></figure><p>2、重新加载防火墙配置：执行<code>sudo firewall-cmd --reload</code> ，使新规则生效。<br>3、验证防火墙规则：使用命令<code>firewall-cmd --list-all</code> ，查看已配置的规则。</p><h2 id="测试页面访问"><a href="#测试页面访问" class="headerlink" title="测试页面访问"></a>测试页面访问</h2><p>1、命令行测试：在终端输入<code>curl 127.0.0.1</code> ，如果能看到网页的内容，则表示服务器基本正常。<br>2、浏览器访问：在浏览器地址栏中输入服务器的 IP 地址（如果配置了域名，也可以输入域名），如果看到默认的测试页面（如 “Testing 123…” 或其他默认内容），则说明 HTTP 服务器搭建成功。</p><h1 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h1><p>1、检查系统版本<br>2、下载apache服务<br>3、配置apache服务<br>4、配置防火墙<br>5、检查配置是否成功</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> Sever </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> Web </tag>
+            
+            <tag> 建站 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>yarn的使用</title>
+      <link href="/2022/02/21/9.yarn%E7%9A%84%E4%BD%BF%E7%94%A8/"/>
+      <url>/2022/02/21/9.yarn%E7%9A%84%E4%BD%BF%E7%94%A8/</url>
+      
+        <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>我这里是macOS Catalina（10.15），如果是macOS 11（big sur） 和 macOS 12（Monterey）也适用。<br>老版本的macOS有些不被支持，请查阅相关文档</p><h2 id="什么是yarn"><a href="#什么是yarn" class="headerlink" title="什么是yarn"></a>什么是yarn</h2><p>Yarn 是由 Facebook 于 2016 年发布的一款包管理工具，旨在取代 npm（Node Package Manager）。<br>它的主要目的是解决 npm 的一些缺点，并提供更高级的包管理功能，以提高开发效率 。</p><h2 id="Yarn-的特点"><a href="#Yarn-的特点" class="headerlink" title="Yarn 的特点"></a>Yarn 的特点</h2><p>速度快：Yarn 缓存了每个下载过的包，所以再次使用时无需重复下载。同时利用并行下载以最大化资源利用率，因此安装速度更快。<br>安全性高：在执行代码之前，Yarn 会通过算法校验每个安装包的完整性，确保包的安全性 。<br>可靠性强：使用详细、简洁的锁文件格式和明确的安装算法，Yarn 能够保证在不同系统上无差异的工作 。</p><h2 id="安装-Yarn"><a href="#安装-Yarn" class="headerlink" title="安装 Yarn"></a>安装 Yarn</h2><p>你可以通过 npm 来安装 Yarn：</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install -g yarn</span><br></pre></td></tr></table></figure><p>安装完成后，可以通过以下命令查看 Yarn 的版本：</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yarn -v</span><br></pre></td></tr></table></figure><h2 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h2><p>查看 Yarn 配置： yarn config list<br>修改 Yarn 源 为淘宝源： yarn config set registry <a href="https://registry.npm.taobao.org/">https://registry.npm.taobao.org</a><br>安装依赖： yarn add 包名 # 局部安装  yarn global add 包名 # 全局安装<br>卸载依赖： yarn remove 包名 # 局部卸载 yarn global remove 包名 # 全局卸载<br>查看全局安装的包： yarn global list</p><h2 id="yarn-与-npm-的区别"><a href="#yarn-与-npm-的区别" class="headerlink" title="yarn 与 npm 的区别"></a>yarn 与 npm 的区别</h2><p>yarn 和 npm 都是用于管理项目依赖的工具，但它们在一些方面有所不同 ：<br>安装速度：yarn 使用并行安装，而 npm 使用串行安装，因此 yarn 的安装速度更快。<br>锁文件：yarn 使用 yarn.lock 文件来锁定依赖的版本，而 npm 使用 package-lock.json 文件。<br>输出日志：yarn 的输出日志更简洁、易读，以树状格式呈现，而 npm 的输出日志较为杂乱。<br>安全性：yarn 使用校验和来验证包的完整性，而 npm  使用 SHA-512 。<br>总的来说，yarn 提供了更快、更安全、更可靠的包管理体验，是现代前端开发中常用的工具之一。</p><h2 id="yarn的常见问题"><a href="#yarn的常见问题" class="headerlink" title="yarn的常见问题"></a>yarn的常见问题</h2><p>1、安装问题<br>2、网络问题<br>3、依赖冲突或不一致</p><h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>yarn是macOS上的包管理组键，是用它和npm差不多，在使用的时候要注意如何解决问题</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> macOS </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> yarn </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>修改python的pip源</title>
+      <link href="/2022/01/18/8.%E4%BF%AE%E6%94%B9pip%E6%BA%90/"/>
+      <url>/2022/01/18/8.%E4%BF%AE%E6%94%B9pip%E6%BA%90/</url>
+      
+        <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>我这里是Windows10&#x2F;11专业工作版(其他Windows版本也适用)<br>如果你的设备是已经是结束支持的Windows7，请查阅其他相关是手册</p><h2 id="什么是pip"><a href="#什么是pip" class="headerlink" title="什么是pip"></a>什么是pip</h2><p>pip 是 Python 包管理工具，该工具提供了对Python 包的查找、下载、安装、卸载的功能。<br>目前如果你在 python.org 下载最新版本的安装包，则是已经自带了该工具。<br>注意：Python 2.7.9 + 或 Python 3.4+ 以上版本都自带 pip 工具。</p><h2 id="修改pip"><a href="#修改pip" class="headerlink" title="修改pip"></a>修改pip</h2><p>在使用Python安装包工具pip时经常会出现下载很慢的情况，这其中有很大一部分原因和pip的源有关.<br>在我们安装python后，通常python解释器自带pip这个工具，但是这里pip是设置的默认源，也就是官方源：<br><a href="https://pypi.org/simple">https://pypi.org/simple</a><br>这个源在国内的下载速度是很慢的，所以我们为了提高包的下载速度我们可以通过换源来实现。</p><p>Python pip国内源路径<br>阿里云 <a href="http://mirrors.aliyun.com/pypi/simple/">http://mirrors.aliyun.com/pypi/simple/</a><br>豆瓣(douban) <a href="http://pypi.douban.com/simple/">http://pypi.douban.com/simple/</a><br>清华大学 <a href="https://pypi.tuna.tsinghua.edu.cn/simple/">https://pypi.tuna.tsinghua.edu.cn/simple/</a><br>中国科学技术大学 <a href="http://pypi.mirrors.ustc.edu.cn/simple/">http://pypi.mirrors.ustc.edu.cn/simple/</a></p><h3 id="临时修改"><a href="#临时修改" class="headerlink" title="临时修改"></a>临时修改</h3><p>打开终端，在终端输入下面的换源代码<br>换为清华源</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install markdown -i https://pypi.tuna.tsinghua.edu.cn/simple</span><br></pre></td></tr></table></figure><p>换为阿里源</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install markdown -i https://mirrors.aliyun.com/pypi/simple/</span><br></pre></td></tr></table></figure><p>换为腾讯源</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install markdown -i http://mirrors.cloud.tencent.com/pypi/simple</span><br></pre></td></tr></table></figure><p>换为豆瓣源</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install markdown -i http://pypi.douban.com/simple/</span><br></pre></td></tr></table></figure><h3 id="永久修改"><a href="#永久修改" class="headerlink" title="永久修改"></a>永久修改</h3><p>打开终端，在终端输入下面的换源代码</p><p>换为清华源</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple</span><br></pre></td></tr></table></figure><p>换为阿里源</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip config set global.index-url https://mirrors.aliyun.com/pypi/simple/</span><br></pre></td></tr></table></figure><p>换为腾讯源</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip config set global.index-url http://mirrors.cloud.tencent.com/pypi/simple</span><br></pre></td></tr></table></figure><p>豆瓣源</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip config set global.index-url http://pypi.douban.com/simple/</span><br></pre></td></tr></table></figure><h3 id="修改为默认"><a href="#修改为默认" class="headerlink" title="修改为默认"></a>修改为默认</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip config unset global.index-url</span><br></pre></td></tr></table></figure><h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>1、打开终端<br>2、复制你要选择的pip源的修改代码<br>3、粘贴到终端</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> Python </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> pip </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>在macOS上两行命令配置好Node和Git</title>
+      <link href="/2021/12/26/7.%E5%9C%A8macOS%E4%B8%8A%E4%B8%A4%E8%A1%8C%E5%91%BD%E4%BB%A4%E9%85%8D%E7%BD%AE%E5%A5%BDNode%E5%92%8CGit/"/>
+      <url>/2021/12/26/7.%E5%9C%A8macOS%E4%B8%8A%E4%B8%A4%E8%A1%8C%E5%91%BD%E4%BB%A4%E9%85%8D%E7%BD%AE%E5%A5%BDNode%E5%92%8CGit/</url>
+      
+        <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>我这里是macOS Catalina（10.15），如果是macOS 11（big sur） 和 macOS 12（Monterey）也适用。<br>老版本的macOS有些不被支持，请查阅相关文档</p><h2 id="Node-js"><a href="#Node-js" class="headerlink" title="Node.js"></a>Node.js</h2><h3 id="什么是node-js"><a href="#什么是node-js" class="headerlink" title="什么是node.js"></a>什么是node.js</h3><p>Node.js 是一个基于 Chrome V8 引擎的 JavaScript 运行环境。<br>Node.js 使用了一个事件驱动、非阻塞式 I&#x2F;O 的模型，使其轻量又高效。<br>简单的说 Node.js 就是运行在服务端的 JavaScript，利用JavaScript在服务端进行编程。<br>Node.js是一个让JavaScript运行在服务器端的开发平台，它让JavaScript的触角伸到了服务器端，可以与PHP、JSP、Python、Ruby平起平坐。<br>Node.js不是一种独立的语言，与PHP、JSP、Python、Perl、Ruby的“既是语言，也是平台”不同，Node.js使用JavaScript进行编程，运行在JavaScript引擎上（V8）。<br>nodejs开发的构成就成利用npm开发的社区提供的大量的第三方包加上基本的ECMAScript脚本语言以及node平台提供的一系列编程接口进行编程。</p><h3 id="代码安装Node-js"><a href="#代码安装Node-js" class="headerlink" title="代码安装Node.js"></a>代码安装Node.js</h3><p>使用代码安装node.js我们会用到一个工具就是我的homebrew（自带npm）<br>安装命令如下：</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">brew install node</span><br></pre></td></tr></table></figure><h3 id="检查node-js和npm是安装"><a href="#检查node-js和npm是安装" class="headerlink" title="检查node.js和npm是安装"></a>检查node.js和npm是安装</h3><p>如果macOS上安装上了node.js和npm，macOS会告诉我版本号<br>返回node.js版本号</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">node - v</span><br></pre></td></tr></table></figure><p>返回npm版本号</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm - v</span><br></pre></td></tr></table></figure><h2 id="Git"><a href="#Git" class="headerlink" title="Git"></a>Git</h2><h3 id="什么是Git"><a href="#什么是Git" class="headerlink" title="什么是Git"></a>什么是Git</h3><p>Git是一个开源的分布式版本控制系统，可以有效、高速地处理从很小到非常大的项目版本管理。<br>也是Linus Torvalds为了帮助管理Linux内核开发而开发的一个开放源码的版本控制软件。<br>Torvalds 开始着手开发 Git 是为了作为一种过渡方案来替代 BitKeeper。</p><h3 id="代码安装Git"><a href="#代码安装Git" class="headerlink" title="代码安装Git"></a>代码安装Git</h3><p>使用代码安装Git我们会用到一个工具就是我的homebrew<br>安装命令如下：</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">brew install git</span><br></pre></td></tr></table></figure><h3 id="检查Git是安装"><a href="#检查Git是安装" class="headerlink" title="检查Git是安装"></a>检查Git是安装</h3><p>如果macOS上安装上了Git，macOS会告诉我版本号<br>返回Git版本号</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git - v</span><br></pre></td></tr></table></figure><h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>1、打开macOS终端<br>2、输入代码下载 Git 和node.js<br>3、检查是否下载成功</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> macOS </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 配置 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>在macOS上优雅安装homebrew</title>
+      <link href="/2021/11/16/6.%E5%9C%A8macOS%E4%B8%8A%E4%BC%98%E9%9B%85%E5%AE%89%E8%A3%85homebrew/"/>
+      <url>/2021/11/16/6.%E5%9C%A8macOS%E4%B8%8A%E4%BC%98%E9%9B%85%E5%AE%89%E8%A3%85homebrew/</url>
+      
+        <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>我这里是macOS Catalina（10.15），如果是macOS 11（big sur） 和 macOS 12（Monterey）也适用。<br>老版本的macOS有些不被支持，请查阅相关文档</p><h2 id="homebrew是什么"><a href="#homebrew是什么" class="headerlink" title="homebrew是什么"></a>homebrew是什么</h2><p>Homebrew官网：<br>英文：<br><a href="https://brew.sh/">https://brew.sh</a><br>中文：<br><a href="https://brew.sh/index_zh-cn">https://brew.sh/index_zh-cn</a><br>Homebrew是MacOS（或 Linux）的软件包管理器。<br>通过它，我们可以方便的对Mac上的各种应用软件进行管理，例如：安装、更新、查看、搜索、卸载等。<br>Homebrew，可谓是Mac神器，几乎每一位Mac使用者都会安装它。<br>用Homebrew官网的一句话总结：<br>Homebrew 使 macOS（或您的 Linux 系统）更完整。</p><h2 id="安装homebrew"><a href="#安装homebrew" class="headerlink" title="安装homebrew"></a>安装homebrew</h2><h3 id="打开终端"><a href="#打开终端" class="headerlink" title="打开终端"></a>打开终端</h3><p>在启动台中点击终端，点击打开终端</p><h3 id="输入指令"><a href="#输入指令" class="headerlink" title="输入指令"></a>输入指令</h3><p>在终端命令行窗口输入安装命令。<br>这里需要特别说明几点内容。<br>下面是Homebrew官方给出的安装命令：（如果没有魔法网络，不要使用此命令安装！）</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/bin/bash -c &quot;$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)&quot;</span><br></pre></td></tr></table></figure><p>通常情况下，官网给出的指令会报错：</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl: (7) Failed to connect to raw.githubusercontent.com port 443: Connection refused</span><br></pre></td></tr></table></figure><p>因为这是国外网站，由于GFW（中国长城防火墙）的存在，如果没有vpn，是无法访问的，所以连接被拒绝！</p><h2 id="使用国内源安装"><a href="#使用国内源安装" class="headerlink" title="使用国内源安装"></a>使用国内源安装</h2><h3 id="代码指令"><a href="#代码指令" class="headerlink" title="代码指令"></a>代码指令</h3><p>以下为国内安装Homebrew的正确姿势：(基于gitee上某个大佬的自动安装脚本)</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/bin/zsh -c &quot;$(curl -fsSL https://gitee.com/cunkai/HomebrewCN/raw/master/Homebrew.sh)&quot;</span><br></pre></td></tr></table></figure><p>回车执行指令后，根据提示操作。具体包括以下提示操作：</p><h3 id="选择下载镜像"><a href="#选择下载镜像" class="headerlink" title="选择下载镜像"></a>选择下载镜像</h3><p>有个源<br>1、中科大下载源<br>2、清华大学下载源<br>3、北京外国语大学下载源<br>4、腾讯下载源（不推荐）<br>5、阿里巴巴下载源（不推荐 缺少 cask源）<br>根据需要选择下载源，例如，我这里选择中科大下载源，就输入‘1’，回车。</p><h3 id="确认删除旧版本"><a href="#确认删除旧版本" class="headerlink" title="确认删除旧版本"></a>确认删除旧版本</h3><p>如果存在旧版本，会弹出删除旧版本提示，输入”Y”，回车。</p><h3 id="输入开机密码（用于mac确认第三方应用安装）"><a href="#输入开机密码（用于mac确认第三方应用安装）" class="headerlink" title="输入开机密码（用于mac确认第三方应用安装）"></a>输入开机密码（用于mac确认第三方应用安装）</h3><h3 id="安装git"><a href="#安装git" class="headerlink" title="安装git"></a>安装git</h3><p>如果之前没有安装过git，会终止homebrew安装，弹出git安装提示，点击“安装”。</p><h3 id="再次执行homebrew安装指令"><a href="#再次执行homebrew安装指令" class="headerlink" title="再次执行homebrew安装指令"></a>再次执行homebrew安装指令</h3><p>耐心等待git安装完成后，再次运行homebrew安装指令，重新根据提示操作即可。<br>安装需要一段时间，过程中，可以在终端看到脚本执行了那些操作。</p><h3 id="验证是否安装成功"><a href="#验证是否安装成功" class="headerlink" title="验证是否安装成功"></a>验证是否安装成功</h3><p>安装脚本执行完成后，重启终端。（重启后才生效）<br>通过在终端输入”brew -v”，可以查看homebrew版本。<br>如果正确输出版本信息，表示成功安装</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">brew -v</span><br></pre></td></tr></table></figure><h2 id="Homebrew卸载"><a href="#Homebrew卸载" class="headerlink" title="Homebrew卸载"></a>Homebrew卸载</h2><p>如需卸载homebrew，请执行语句：</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/bin/zsh -c &quot;$(curl -fsSL https://gitee.com/cunkai/HomebrewCN/raw/master/HomebrewUninstall.sh)&quot;</span><br></pre></td></tr></table></figure><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>1、打开终端<br>2、输入代码，推荐使用国内源的代码<br>3、验证是否安装成功<br>4、卸载homebrew</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> macOS </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> homebrew </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>让你的Windows和mac一样优雅</title>
+      <link href="/2021/10/18/5.Windows%20Dynamic%20Desktop/"/>
+      <url>/2021/10/18/5.Windows%20Dynamic%20Desktop/</url>
+      
+        <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>我这里是Windows10&#x2F;11专业工作版(其他Windows版本也适用)<br>如果你的设备是已经是结束支持的Windows7，系统主题的操作变化操作可能不太适用</p><h2 id="mac桌面"><a href="#mac桌面" class="headerlink" title="mac桌面"></a>mac桌面</h2><p>Apple 在macOS Mojave(10.14) 推出深色和浅色的壁纸， 经过macOS Catalina(10.15)、macOS Big Sur(11) 的发展，<br>macOS的壁纸成了动态变化的壁纸，这些壁纸可以随着时间的变化。 在一天中自行从浅色变为深色。主题也会变化。</p><h2 id="Windows桌面"><a href="#Windows桌面" class="headerlink" title="Windows桌面"></a>Windows桌面</h2><p>需要做到这样的操作，我会介绍一个简单的下工具 Windows Dynamic Desktop（以下简称 WinDD）</p><h3 id="WinDD介绍"><a href="#WinDD介绍" class="headerlink" title="WinDD介绍"></a>WinDD介绍</h3><p>WinDD 是一个 开源项目，由开发者t1m0thyj创建，旨在为 Windows 用户提供类似于 macOS Mojave 的动态桌面体验。 该项目模仿了自然环境中的光照变化，<br>使你的桌面背景根据一天中实际的时间自动调整. 从而带来更为沉浸和真实的交互感觉。 此项目的实现依赖于以下几个关键的技术点：<br>图像处理 WinDD 可以处理多张不同光照条件下的桌面壁纸，并按照时间进行平滑过渡。</p><h3 id="下载WinDD"><a href="#下载WinDD" class="headerlink" title="下载WinDD"></a>下载WinDD</h3><p>由于WinDD是一个开源项目，这里就直接给出官网下载链接<br>Github下载<br><a href="https://github.com/t1m0thyj/WinDynamicDesktop/releases">Github</a></p><p>按照自己的系统规格来下载适合自己的软件<br>也可以通过Microsoft store下载<br>微软应用商店<br><a href="https://apps.microsoft.com/detail/9nm8n7dq3z5f?hl=zh-cn&gl=CN">Micosoft Store</a></p><h3 id="安装WinDD"><a href="#安装WinDD" class="headerlink" title="安装WinDD"></a>安装WinDD</h3><p>点击安装文件要选择安装语言（这里是没有简体正文的）<br>![select_language.jpg](&#x2F;img&#x2F;contents&#x2F;Windows Dynamic Desktop&#x2F;select_language.jpg)<br>选择安装位置<br>![select_postion.jpg](&#x2F;img&#x2F;contents&#x2F;Windows Dynamic Desktop&#x2F;select_postion.jpg)<br>安装就一直下一步就好好啦！！！</p><h3 id="设置WinDD"><a href="#设置WinDD" class="headerlink" title="设置WinDD"></a>设置WinDD</h3><p>首次打开Windd，会设置语言,这里我们以简体中文就好了<br>![select_language.jpg](&#x2F;img&#x2F;contents&#x2F;Windows Dynamic Desktop&#x2F;select_language.jpg)<br>接下来就会调整我们的壁纸修改时间了，选择 “使用Windows定位服务确定的时间”<br>![select_postion.jpg](&#x2F;img&#x2F;contents&#x2F;Windows Dynamic Desktop&#x2F;select_postion2.jpg)<br>打开程序，下载你要设置的主题<br>![select_wallpaper.jpg](&#x2F;img&#x2F;contents&#x2F;Windows Dynamic Desktop&#x2F;select_wallpaper.jpg)<br>然后在程序中选择你夏欢的的壁纸，如果不喜欢，那么可以去他的官方主题上下载(部分付费)</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://windd.info/themes/</span><br></pre></td></tr></table></figure><h2 id="Windows主题"><a href="#Windows主题" class="headerlink" title="Windows主题"></a>Windows主题</h2><p>现在我们来解决Windows主题深色，浅色转化,会使用到一个工具 Auto Dark Mode(以下简称ADM)</p><h3 id="ADM介绍"><a href="#ADM介绍" class="headerlink" title="ADM介绍"></a>ADM介绍</h3><p>Auto Dark Mode 是一款可以为 Windows 提供自动深色模式的系统主题软件，可以根据不同规则（时间、电量、应用）自动切换深色模式或浅色模式。<br>在调整模式的同时甚至还可以自动切换桌面壁纸，而且 Auto Dark Mode 完全免费， 在微软应用商店可以下载。<br>微软应用商店<br><a href="https://apps.microsoft.com/detail/xp8jk4hzbvf435?hl=zh-CN&gl=CN">Micosoft Store</a><br>开源网站下载链接<br><a href="https://github.com/AutoDarkMode/Windows-Auto-Night-Mode/releases">Github</a><br>安装就一直下一步就好好啦！！！</p><h3 id="设置ADM"><a href="#设置ADM" class="headerlink" title="设置ADM"></a>设置ADM</h3><p>打开ADM<br>![select_your_postion1.jpg](&#x2F;img&#x2F;contents&#x2F;Windows Dynamic Desktop&#x2F;select_your_postion1.jpg)<br>把 Enable Automatic Thame Switching (启用主题切换)打开<br>然后，打开之后选择第二个 From sunset to sunrise（location service）<br>就会出现完成了<br>让两个程序（WinDD 和 ADM）一直运行下去就好了（占用资源极少）</p><h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>1、安装WinDD<br>2、设置WinDD的语言<br>3、下载WinDD的动态壁纸<br>4、安装ADM<br>5、将ADM的时间设置为自己的本机定位时间</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 美化 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> Windows Dynamic Desktop </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>离谱 office tool plus？？？</title>
+      <link href="/2021/09/14/4.office/"/>
+      <url>/2021/09/14/4.office/</url>
+      
+        <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>我这里是Windows10&#x2F;11专业工作版(其他Windows版本也适用)<br>如果你的设备是已经是结束支持的Windows7，请查阅其他相关是手册</p><h2 id="office是什么？"><a href="#office是什么？" class="headerlink" title="office是什么？"></a>office是什么？</h2><p>Office办公软件是一套由微软公司开发的办公软件，它为 Microsoft Windows 和 Mac OS X而开发。与办公室应用程序一样，它包括联合的服务器和基于互联网的服务。<br>最近版本的 Office 被称为 “Office system” 而不叫 “Office suite”，反映出它们也包括服务器的事实。<br>该软件被认为是一个开发文档的事实标准，而且有一些特性在其他产品中并不存在；但是其他产品也有 Office 缺少的特性。<br>2007 Microsoft Office System 有一个和以前版本差异很大的用户界面。<br>常用组件有 Word、Excel、PowerPoint等。最新版本为Office 365(Office 2021)。</p><h2 id="定价"><a href="#定价" class="headerlink" title="定价"></a>定价</h2><p>有按年定价和按月定价(不管是那种方式都可以免费试用 1 个月)<br>定价如下<br><img src="/img/contents/office/office_price_for_per_month.jpg" alt="office_price_for_per_month"><img src="/img/contents/office/office_price_for_per_year.jpg" alt="office_price_for_per_year"><br>如你所见，office的价格是很令人感动的,那么有没有什么方式我们能使用完整版本的office呢？<br>答案肯定是有的！！！</p><h2 id="office-tool-plus"><a href="#office-tool-plus" class="headerlink" title="office tool plus"></a>office tool plus</h2><p>office tool plus是你不错的选择<br><img src="/img/contents/office/office_tool_plus_index.jpg" alt="office_tool_plus_index.jpg"></p><h3 id="什么是-office-tool-plus"><a href="#什么是-office-tool-plus" class="headerlink" title="什么是 office tool plus"></a>什么是 office tool plus</h3><p>Office Tool Plus 是一款基于 Office 部署工具 (ODT) 开发的免费工具，具有以下主要功能：<br>快速下载 Office，支持所有版本（Office 2016-2024，Microsoft 365）。<br>灵活安装和配置 Office，包括语言、版本、应用程序选择等。<br>支持通过 KMS 等方式激活 Office，方便批量许可证管理。<br>提供一键修复功能，帮助解决安装或激活问题。</p><h3 id="office-tool-plus-的下载"><a href="#office-tool-plus-的下载" class="headerlink" title="office tool plus 的下载"></a>office tool plus 的下载</h3><p><a href="https://otp.landian.vip/zh-cn/download.html">office tool plus 下载地址</a><br>点击下载地址链接，进入office tool plus的官方下载地址<br>注意：office tool plus 的系统要求：Windows 10 或更高版本，不支持其他操作系统（例如 Linux 或 macOS）<br><img src="/img/contents/office/office_tool_plus_download.png" alt="office_tool_plus_download.png"></p><h3 id="部署office"><a href="#部署office" class="headerlink" title="部署office"></a>部署office</h3><p>将Office tool plus 解压到桌面上，打开office tool plus.exe 文件<br>点击部署<br>选择自己需要的office 版本这里我选择的是office 365 和Viso 2021 专业版 和 project 2021 专业版<br>选择语言为 简体中文 点击部署就好了<br><img src="/img/contents/office/office_setup.jpg" alt="部署office"></p><h3 id="激活offce"><a href="#激活offce" class="headerlink" title="激活offce"></a>激活offce</h3><p>部署结束了后，使用快捷键 Ctrl + shift +p 键<br>调出激活代码框输入</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ospp /inslicid MondoVolume /sethst:kms.loli.beer /setprt:1688 /act</span><br></pre></td></tr></table></figure><p><img src="/img/contents/office/office_activate.jpg" alt="激活office"></p><h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>1、下载office tool plus<br>2、打开office tool plus.exe文件<br>3、选择自己需要的部件，选择语言，点击部署<br>4、调出激活代码框，输入激活代码</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> windows </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> office </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>一个免费的域名</title>
+      <link href="/2021/08/13/3.Domain/"/>
+      <url>/2021/08/13/3.Domain/</url>
+      
+        <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>我这里是Windows10&#x2F;11专业工作版(其他Windows版本也适用)<br>如果你的设备是已经是结束支持的Windows7，请查阅其他相关是手册<br>工具是Microsoft Edge，这里自动翻译为了中文<br>关于建立个人网站，这里有有一个方式就是域名和代码托管<br>自己做了blog，然后利用Github托管，Github Pages 的访问域名自己不太喜欢，就自己上网找了很久，本来想注册双胞胎域名，然后注册失败了<br>这边就推荐一个永久免费的域名 eu.org 结尾，我自己也用的是这个域名，使用和注册界面确实有亿点点丑陋，免费的还要什么自行车，冲吧！</p><h2 id="什么是-eu-org-域名"><a href="#什么是-eu-org-域名" class="headerlink" title="什么是 eu.org 域名"></a>什么是 eu.org 域名</h2><p>eu.org是欧盟组织下面的域名，EU代表欧盟，<br>Paul Mockapetris 在1996年的9-10月份创建了这个域名的DNS服务器。<br>计划是专门给无力承担费用的一些组织使用的。<br>所以它对个人和组织是免费注册的。目前已经被谷歌，Cloudfare等一些大公司认可为顶级域名</p><h2 id="注册账号"><a href="#注册账号" class="headerlink" title="注册账号"></a>注册账号</h2><h3 id="打开官网，点击注册"><a href="#打开官网，点击注册" class="headerlink" title="打开官网，点击注册"></a>打开官网，点击注册</h3><p><a href="http://nic.eu.org/">eu.org官网链接</a>点击这个连接就可以跳转到eu.org官方网站界面</p><p><img src="/img/contents/Domain/eu.jpg" alt="官网"></p><h3 id="填写信息"><a href="#填写信息" class="headerlink" title="填写信息"></a>填写信息</h3><p><img src="/img/contents/Domain/register.jpg" alt="注册"><br>打开这个网站点击注册，然后填写自己的详细信息就好了(可以是虚假生成的)，等待审核通过就好<br>审核通过了会给你发生一个邮件会告诉你申请到的账号<br><img src="/img/contents/Domain/regist_login.png" alt="返回邮件"></p><p>注意：虚拟生成的身份不要填写虚拟身份中的邮箱，邮箱填写自己的，方便接收到账号 (密码是你自己定义的，认真记录保存一下)</p><h2 id="域名"><a href="#域名" class="headerlink" title="域名"></a>域名</h2><h3 id="登录"><a href="#登录" class="headerlink" title="登录"></a>登录</h3><p><img src="/img/contents/Domain/demain_login.jpg" alt="登录"><br>输入账号和密码登录即可，</p><h3 id="申请域名"><a href="#申请域名" class="headerlink" title="申请域名"></a>申请域名</h3><h4 id="New-Domain"><a href="#New-Domain" class="headerlink" title="New Domain"></a>New Domain</h4><p>点击New Domain 进入域名申请界面<br><img src="/img/contents/Domain/login_in.png" alt="login_in.png"></p><h4 id="设置域名名"><a href="#设置域名名" class="headerlink" title="设置域名名"></a>设置域名名</h4><p><img src="/img/contents/Domain/login_in.png" alt="login_in.png"><br>在这就可以选择一个 New Domain，就可以新建立一个自己的域名</p><h4 id="填写表单"><a href="#填写表单" class="headerlink" title="填写表单"></a>填写表单</h4><p><img src="/img/contents/Domain/info1.png" alt="info1.png"><br>在填写把下面的详细信息前必须在 Complete domain name 处填写你要申请的域名全名<br>格式为： xxx .eu.org<br>填写完毕后就可以完成你身份的表单（信息可以是虚假的）</p><h4 id="添加域名解析服务"><a href="#添加域名解析服务" class="headerlink" title="添加域名解析服务"></a>添加域名解析服务</h4><p><img src="/img/contents/Domain/info2.png" alt="info2.png"><br>注意在选择的时候要选择 sever names,可以是使用自己的DNSPod,这里给出一个<br>是B站UP主梅塔沃克的</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"> </span><br></pre></td></tr></table></figure><p>输入后点击submit，出现 没有问题就好了<br><img src="/img/contents/Domain/return_no_error.png" alt="return_no_error.png"></p><p>这样等待一段时间的就会发邮件到你的邮箱中，告诉你结果（一般是7天时间）</p><h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>接下来我会带着你将自己的域名添加到cloudfare中！！！<br>如果曦和的文章对您有帮助，请收藏一下！！！</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> domain </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> Web </tag>
+            
+            <tag> 建站 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>VScode配置C/C++(windows版本)</title>
+      <link href="/2021/07/08/2.VScode/"/>
+      <url>/2021/07/08/2.VScode/</url>
+      
+        <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>我这里是Windows10&#x2F;11专业工作版(其他Windows版本也适用)<br>如果你的设备是已经是结束支持的Windows7，请查阅其他相关是手册<br>配置C&#x2F;C++语言需要一个编辑器(Editor)和一个编译环境(Intergrated Development Environment)<br>编辑器(Editor):可以以简单的理解为：可以写代码的地方，并且可以实现代码的DeBug等其他功能<br>编译环境(Intergrated Development Environment)：简称IDE，可以以简单的理解为将代码编译为计算机能理解的语句<br>需要下载的软件的  MinGW(GCC) 、 Microsoft Visual Studio Code</p><h2 id="MinGW-GCC"><a href="#MinGW-GCC" class="headerlink" title="MinGW(GCC)"></a>MinGW(GCC)</h2><h3 id="GCC是什么？"><a href="#GCC是什么？" class="headerlink" title="GCC是什么？"></a>GCC是什么？</h3><p>GCC（GNU Compiler Collection，GNU编译器套件）是由GNU开发的编程语言编译器。<br>GNU编译器套件包括C、C++、 Objective-C、 Fortran、Java、Ada和Go语言前端，也包括了这些语言的库（如libstdc++，libgcj等。）<br>GCC的初衷是为GNU操作系统专门编写的一款编译器。GNU系统是彻底的自由软件。此处，“自由”的含义是它尊重用户的自由</p><h3 id="如何下载GCC"><a href="#如何下载GCC" class="headerlink" title="如何下载GCC"></a>如何下载GCC</h3><p><a href="https://nuwen.net/mingw.html">GCC官网下下载链接</a>,点击这个连接就可以跳转到GCC官方下载的界面<br><img src="/img/contents/vscode/MINGW.png" alt="MINGW "><br>下载的时候有两个版本可以选择，一个是标准版，一个是withou-git版本，按照自己的需求下载就好了<br>这里我下载的是标准版的</p><h3 id="安装GCC"><a href="#安装GCC" class="headerlink" title="安装GCC"></a>安装GCC</h3><p>将下载好了的 gcc安装好，到自己电脑的某个位置，并记住 GCC 的安装位置<br>找到 GCC 的位置，进入bin文件，在Windows的文件管理器中的地址栏复制该路径<br>例如： E:\IDEs\GCC\MinGW\bin</p><h3 id="配置GCC到电脑的path环境变量中"><a href="#配置GCC到电脑的path环境变量中" class="headerlink" title="配置GCC到电脑的path环境变量中"></a>配置GCC到电脑的path环境变量中</h3><p>鼠标右键点击此电脑，选择属性，找到高级系统设置，进入他，点击环境变量（或者使用快捷键n）<br>这里会发现有两个path，一个是用户的环境变量，一个是系统的环境变量，选择用户的环境变量，注意是用户的，用户的，用户的（重要是事情说三遍！！！）<br>进入用户的path环境变量中，新建（或者使用快捷键n）一个值，将刚刚的地址粘贴上去</p><h3 id="检测GCC是否在全局中可以访问使用"><a href="#检测GCC是否在全局中可以访问使用" class="headerlink" title="检测GCC是否在全局中可以访问使用"></a>检测GCC是否在全局中可以访问使用</h3><p>打开运行框（或者使用快捷键 win + r），输入cmd,打开Windows控制台，输入<br>   <code>gcc  --version</code><br>返回GCC的版本号将GCC在Windows中可以全局访问了<br><img src="/img/contents/vscode/gcc.png" alt="gcc"><br>如果没有返回就请重新检查一下前面的步骤</p><h2 id="Microsoft-Visual-Studio-Code"><a href="#Microsoft-Visual-Studio-Code" class="headerlink" title="Microsoft Visual Studio Code"></a>Microsoft Visual Studio Code</h2><h3 id="什么是Microsoft-Visual-Studio-Code"><a href="#什么是Microsoft-Visual-Studio-Code" class="headerlink" title="什么是Microsoft Visual Studio Code"></a>什么是Microsoft Visual Studio Code</h3><p>Microsoft Visual Studio Code（简称“VS Code” 或 “MVSC”，以下简称“VS code”）。<br>是Microsoft在2015年4月30日Build开发者大会上正式宣布一个运行于 Mac OS X、Windows和 Linux 之上的。<br>针对于编写现代Web和云应用的跨平台源代码编辑器，可在桌面上运行，并且可用于Windows，macOS和Linux。<br>它具有对JavaScript，TypeScript和Node.js的内置支持，并具有丰富的其他语言（例如C++，C＃，Java，Python，PHP，Go）和运行时（例如.NET和Unity）扩展的生态系统。</p><h3 id="下载Microsoft-Visual-Studio-Code"><a href="#下载Microsoft-Visual-Studio-Code" class="headerlink" title="下载Microsoft Visual Studio Code"></a>下载Microsoft Visual Studio Code</h3><p><a href="https://code.visualstudio.com/">VS code官网下下载链接</a>,点击池连接就可以跳转到VS code官方下载的界面<br><img src="/img/contents/vscode/vscode.png" alt="VS code "><br>下载的时候有两个版本可以选择，<br><img src="/img/contents/vscode/vscode-download.jpg" alt="VS code-download.jpg"><br>insider(业内人)和stable(稳定版)，按照自己的想法选择，建议：初学者选择Stable版本</p><h3 id="安装Microsoft-Visual-Studio-Code"><a href="#安装Microsoft-Visual-Studio-Code" class="headerlink" title="安装Microsoft Visual Studio Code"></a>安装Microsoft Visual Studio Code</h3><p>直接点击下载好了的安装包，一直点击下一步，全部都可以勾选，然后安装结束，运行 VS code</p><h3 id="配置Microsoft-Visual-Studio-Code"><a href="#配置Microsoft-Visual-Studio-Code" class="headerlink" title="配置Microsoft Visual Studio Code"></a>配置Microsoft Visual Studio Code</h3><p>在VS code中可以选择自己喜欢的主题颜色，如果看不懂英文可以在这边的选择栏中选择Extensions（扩展）。<br>在搜索框中搜索 Chinese ，选择Chinese （Simplified）（中文简体），如果你是港澳台地区选择Chinese （Traditional）（中文繁体），按需选择就好。<br>install刚刚选择好了的语言，会弹出 “Change Language and Restart”，点击它，然后VS code重启，重启后就是你选择的语言了。<br>继续在xtensions（扩展）搜索C&#x2F;C++ Extension pack，install（安装）它，就配置好了</p><h3 id="Microsoft-Visual-Studio-Code-相关插件"><a href="#Microsoft-Visual-Studio-Code-相关插件" class="headerlink" title="Microsoft Visual Studio Code 相关插件"></a>Microsoft Visual Studio Code 相关插件</h3><p>VS code运行C&#x2F;C++的时候需要安装一个code runner插件！！！</p><h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>1：下载 GCC  和  Microsoft Visual Studio Code<br>2：安装 GCC  和  Microsoft Visual Studio Code<br>3：配置、验证 GCC 是否在Windows全局可以访问<br>4：配置 Microsoft Visual Studio Code ，在Extensions（扩展）中安装字体和 C&#x2F;C++ Extension pack   </p>]]></content>
+      
+      
+      <categories>
+          
+          <category> VScode </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 配置 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>认识一下，我叫“曦和”</title>
+      <link href="/2021/06/06/1.hello-world/"/>
+      <url>/2021/06/06/1.hello-world/</url>
+      
+        <content type="html"><![CDATA[<h1 id="hey-你好，很高兴认识你-，我叫曦和"><a href="#hey-你好，很高兴认识你-，我叫曦和" class="headerlink" title="hey 你好，很高兴认识你 ，我叫曦和"></a>hey 你好，很高兴认识你 ，我叫曦和</h1><p><img src="/img/contents/hello/contents.jpg" alt="曦和"><br>    在后面的交流中，我很希望我们能相互交流，学到更多的东西！！！<br>        cheers！！！</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 认识 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> Hello </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+  
+  
+</search>
